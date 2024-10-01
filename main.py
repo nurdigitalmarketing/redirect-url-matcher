@@ -10,6 +10,9 @@ from polyfuzz.models import RapidFuzz
 matcher = RapidFuzz(n_jobs=1, score_cutoff=0.80)
 model = PolyFuzz(matcher)
 
+# Configurazione della pagina con titolo e icona
+st.set_page_config(page_title="Redirect URL Mapper • NUR® Digital Marketing", page_icon="./Nur-simbolo-1080x1080.png")
+
 # Aggiungi il logo di Nur Digital Marketing
 st.image("./logo_nur_vettoriale.svg", width=100)
 
