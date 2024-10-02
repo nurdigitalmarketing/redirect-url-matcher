@@ -17,14 +17,14 @@ st.set_page_config(page_title="Redirect URL Mapper • NUR® Digital Marketing",
 st.image("./logo_nur_vettoriale.svg", width=100)
 
 # Crea due colonne per le istruzioni e i requisiti
-    with st.expander("Istruzioni"):
-        st.markdown("""
+with st.expander("Istruzioni"):
+    st.markdown("""
         - Esegui una scansione su Screaming Frog dei siti live e staging (utilizza le sitemap come fonte di crawling)
         - Filtra per Content Type "HTML" ed esporta entrambi i crawling in formato .XLSX 
         - Carica i file separati nelle apposite sezioni dello strumento
         """)
-    with st.expander("Requisiti"):
-        st.markdown("""
+with st.expander("Requisiti"):
+    st.markdown("""
         - La colonna 1 deve essere denominata "Address" e contenere URL completi, inclusi http(s)://
         - Le seguenti intestazioni di colonna devono essere presenti in entrambi i file, anche se le celle sono vuote:
           - "Title 1", "H1-1", "H2-1"
