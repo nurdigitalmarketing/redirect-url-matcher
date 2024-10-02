@@ -1,4 +1,4 @@
-# Redirect URL Mapper • NUR® Digital Marketing
+# Redirect URL Mapper
 
 ## Overview
 
