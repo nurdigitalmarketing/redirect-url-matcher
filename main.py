@@ -165,13 +165,21 @@ def url_parse(legacy_urls, legacy_crawl, new_urls, new_crawl):
     ]
     export_dfs(match_dfs)
 
-# Funzione per esportare i dati
+# Funzione per esportare i dati e mostrare la tabella interattiva
 def export_dfs(match_dfs):
     sheet_names = ['URL Match', 'Slug Match', 'Title Match', 'H1 Match', 'H2 Match']
+    
+    # Mostra le tabelle interattive
+    for df, sheet_name in zip(match_dfs, sheet_names):
+        st.markdown(f"### {sheet_name}")
+        st.dataframe(df)  # Mostra la tabella interattiva
+
+    # Salva il file Excel
     with pd.ExcelWriter('mappatura_url.xlsx') as writer:
         for df, sheet_name in zip(match_dfs, sheet_names):
             df.to_excel(writer, sheet_name=sheet_name, index=False)
 
+    # Aggiungi il pulsante per il download del file
     with open("mappatura_url.xlsx", "rb") as file:
         st.download_button(label='Scarica l\'analisi del match',
                            data=file,
