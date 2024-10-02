@@ -16,7 +16,9 @@ st.set_page_config(page_title="Redirect URL Mapper • NUR® Digital Marketing",
 # Aggiungi il logo di Nur Digital Marketing
 st.image("./logo_nur_vettoriale.svg", width=100)
 
-# Aggiungi l'intestazione e le istruzioni in italiano
+# Crea due colonne per le istruzioni e i requisiti
+col1, col2 = st.columns(2)
+
 with col1:
     with st.expander("Istruzioni"):
         st.markdown("""
