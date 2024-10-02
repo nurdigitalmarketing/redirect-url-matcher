@@ -17,19 +17,21 @@ st.set_page_config(page_title="Redirect URL Mapper • NUR® Digital Marketing",
 st.image("./logo_nur_vettoriale.svg", width=100)
 
 # Aggiungi l'intestazione e le istruzioni in italiano
-st.markdown("""
-# Redirect URL Mapper
+with col1:
+    with st.expander("Istruzioni"):
+        st.markdown("""
+        - Esegui una scansione su Screaming Frog dei siti live e staging (utilizza le sitemap come fonte di crawling)
+        - Filtra per Content Type "HTML" ed esporta entrambi i crawling in formato .XLSX 
+        - Carica i file separati nelle apposite sezioni dello strumento
+        """)
 
-**Istruzioni:**
-- Esegui una scansione su Screaming Frog dei siti live e staging (utilizza le sitemap come fonte di crawling)
-- Filtra per Content Type "HTML" ed esporta entrambi i crawling in formato .XLSX 
-- Carica i file separati nelle apposite sezioni dello strumento
-
-**Requisiti:**
-- La colonna 1 deve essere denominata "Address" e contenere URL completi, inclusi http(s)://
-- Le seguenti intestazioni di colonna devono essere presenti in entrambi i file, anche se le celle sono vuote:
-  - "Title 1", "H1-1", "H2-1"
-""")
+with col2:
+    with st.expander("Requisiti"):
+        st.markdown("""
+        - La colonna 1 deve essere denominata "Address" e contenere URL completi, inclusi http(s)://
+        - Le seguenti intestazioni di colonna devono essere presenti in entrambi i file, anche se le celle sono vuote:
+          - "Title 1", "H1-1", "H2-1"
+        """)
 
 # Caricamento file legacy
 legacy_file = st.file_uploader('Carica il file degli ***URLs attualmente live***', type='xlsx', key='legacy')
