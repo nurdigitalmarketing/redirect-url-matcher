@@ -21,9 +21,9 @@ st.markdown("""
 # Redirect URL Mapper
 
 **Istruzioni:**
-- Carica il crawl degli old URLs (sito attualmente live)
-- Carica il crawl dei new URLS (sito in staging)
-- Scarica il file xlsx dopo che l'app ha terminato (l'elaborazione potrebbe richiedere alcuni minuti per crawl di grandi dimensioni)
+- Esegui una scansione su Screaming Frog dei siti live e staging (utilizza le sitemap come fonte di crawling)
+- Filtra per Content Type "HTML" ed esporta entrambi i crawling in formato .XLSX 
+- Carica i file separati nelle apposite sezioni dello strumento
 
 **Requisiti:**
 - La colonna 1 deve essere denominata "Address" e contenere URL completi, inclusi http(s)://
