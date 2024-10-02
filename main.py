@@ -21,8 +21,8 @@ st.markdown("""
 # Redirect URL Mapper
 
 **Istruzioni:**
-- Carica il crawl degli URL legacy (xlsx)
-- Carica il crawl degli URL nuovi (xlsx)
+- Carica il crawl degli URL legacy (ovvero "old")
+- Carica il crawl degli URL nuovi (ovvero "new")
 - Scarica il file xlsx dopo che l'app ha terminato (l'elaborazione potrebbe richiedere alcuni minuti per crawl di grandi dimensioni)
 
 **Requisiti:**
