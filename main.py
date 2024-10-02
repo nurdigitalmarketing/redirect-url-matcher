@@ -17,7 +17,7 @@ st.set_page_config(page_title="Redirect URL Mapper • NUR® Digital Marketing",
 st.image("./logo_nur_vettoriale.svg", width=100)
 
 # Crea due colonne per le istruzioni e i requisiti
-col1, col2 = st.columns(2)
+col1, col2 = st.columns(1)
 
 with col1:
     with st.expander("Istruzioni"):
