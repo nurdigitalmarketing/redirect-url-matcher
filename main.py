@@ -19,6 +19,9 @@ st.image("./logo_nur_vettoriale.svg", width=100)
 # Aggiungi il titolo della pagina
 st.markdown("# Redirect URL Mapper")
 
+# Aggiungi il sottotitolo
+st.markdown("Strumento per la mappatura automatica dei reindirizzamenti, che confronta gli URL precedenti e quelli nuovi in base a vari elementi della pagina (percorsi, slug, titoli, H1 e H2). Supporta il crawling tramite Screaming Frog o advertools spider.")
+
 # Sezione per istruzioni e requisiti in blocchi espandibili uno sopra l'altro
 with st.expander("Istruzioni"):
     st.markdown("""
