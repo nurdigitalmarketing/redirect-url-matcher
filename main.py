@@ -165,14 +165,16 @@ def url_parse(legacy_urls, legacy_crawl, new_urls, new_crawl):
     ]
     export_dfs(match_dfs)
 
-# Funzione per esportare i dati e mostrare la tabella interattiva
+# Funzione per esportare e visualizzare le tabelle
 def export_dfs(match_dfs):
     sheet_names = ['URL Match', 'Slug Match', 'Title Match', 'H1 Match', 'H2 Match']
     
-    # Mostra le tabelle interattive
-    for df, sheet_name in zip(match_dfs, sheet_names):
-        st.markdown(f"### {sheet_name}")
-        st.dataframe(df)  # Mostra la tabella interattiva
+    # Aggiungi un selettore a schede per visualizzare i fogli separatamente
+    selected_sheet = st.selectbox("Seleziona il match da visualizzare", sheet_names)
+
+    # Mostra la tabella selezionata
+    sheet_index = sheet_names.index(selected_sheet)
+    st.dataframe(match_dfs[sheet_index])  # Visualizza la tabella interattiva
 
     # Salva il file Excel
     with pd.ExcelWriter('mappatura_url.xlsx') as writer:
