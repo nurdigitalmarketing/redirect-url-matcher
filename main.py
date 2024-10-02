@@ -21,8 +21,8 @@ st.markdown("""
 # Redirect URL Mapper
 
 **Istruzioni:**
-- Carica il crawl degli URL legacy (ovvero "old")
-- Carica il crawl degli URL nuovi (ovvero "new")
+- Carica il crawl degli old URLs (sito attualmente live)
+- Carica il crawl dei new URLS (sito in staging)
 - Scarica il file xlsx dopo che l'app ha terminato (l'elaborazione potrebbe richiedere alcuni minuti per crawl di grandi dimensioni)
 
 **Requisiti:**
@@ -32,7 +32,7 @@ st.markdown("""
 """)
 
 # Caricamento file legacy
-legacy_file = st.file_uploader('Carica il crawl degli URL LEGACY', type='xlsx', key='legacy')
+legacy_file = st.file_uploader('Carica il crawl degli URL attualmente live', type='xlsx', key='legacy')
 
 input_files = []
 crawl_columns = ['Address', 'Title 1', 'H1-1', 'H2-1']
