@@ -7,8 +7,8 @@ from polyfuzz import PolyFuzz
 from polyfuzz.models import RapidFuzz
 
 # Inizializzazione del matcher con ID specifico per evitare warning
-matcher = RapidFuzz(n_jobs=1, score_cutoff=0.80)
-model = PolyFuzz(matcher, model_id="rapidfuzz_matcher")
+matcher = RapidFuzz(n_jobs=1, score_cutoff=0.80, model_id="rapidfuzz_matcher")
+model = PolyFuzz(matcher)
 
 # Configurazione della pagina Streamlit
 st.set_page_config(page_title="Redirect URL Mapper • NUR® Digital Marketing", page_icon="./Nur-simbolo-1080x1080.png")
