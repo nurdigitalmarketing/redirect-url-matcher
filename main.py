@@ -197,29 +197,60 @@ def analyze_crawls(crawls):
 def export_dfs(match_dfs):
     sheet_names = ['URL Match', 'Slug Match', 'Title Match', 'H1 Match', 'H2 Match']
     
-    # Aggiungi statistiche per ogni tipo di match
+    # Stile CSS personalizzato
+    st.markdown("""
+        <style>
+        .stats-card {
+            background-color: #1E1E1E;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+        }
+        .metric-title {
+            color: #9E9E9E;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+        .metric-value {
+            color: #FFFFFF;
+            font-size: 1.8em;
+            font-weight: bold;
+            margin: 0;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    # Per ogni tipo di match
     for i, df in enumerate(match_dfs):
-        st.subheader(f"Statistiche {sheet_names[i]}")
+        st.markdown(f"### {sheet_names[i]}")
+        
         col1, col2 = st.columns(2)
         with col1:
-            st.metric("Numero di match trovati", len(df))
+            st.markdown(f"""
+                <div class="stats-card">
+                    <div class="metric-title">Match trovati</div>
+                    <div class="metric-value">{len(df):,}</div>
+                </div>
+            """, unsafe_allow_html=True)
+        
         with col2:
-            if len(df) > 0:
-                st.metric("Similarità media", f"{df['Similarity'].mean():.2%}")
-    
-    # Aggiungi un selettore a schede per visualizzare i fogli separatamente
+            avg_similarity = df['Similarity'].mean() if len(df) > 0 else 0
+            st.markdown(f"""
+                <div class="stats-card">
+                    <div class="metric-title">Similarità media</div>
+                    <div class="metric-value">{avg_similarity:.1%}</div>
+                </div>
+            """, unsafe_allow_html=True)
+
+    # Visualizzazione tabella e export
     selected_sheet = st.selectbox("Seleziona il match da visualizzare", sheet_names)
-    
-    # Mostra la tabella selezionata
     sheet_index = sheet_names.index(selected_sheet)
     st.dataframe(match_dfs[sheet_index])
 
-    # Salva il file Excel
     with pd.ExcelWriter('mappatura_url.xlsx') as writer:
         for df, sheet_name in zip(match_dfs, sheet_names):
             df.to_excel(writer, sheet_name=sheet_name, index=False)
 
-    # Aggiungi il pulsante per il download del file
     with open("mappatura_url.xlsx", "rb") as file:
         st.download_button(
             label='Scarica l\'analisi del match',
