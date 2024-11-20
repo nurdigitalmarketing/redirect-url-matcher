@@ -260,7 +260,7 @@ def export_dfs(match_dfs):
         )
 
 # Pulsante per resettare la cache
-if st.button('Resetta Cache e Ricarica'):
+if st.button('Resetta cache e ricarica'):
     st.session_state.matched_results = None
     st.session_state.legacy_crawl = None
     st.session_state.new_crawl = None
