@@ -7,7 +7,7 @@ from polyfuzz import PolyFuzz
 from polyfuzz.models import RapidFuzz
 
 # Imposta il matcher e il modello
-matcher = RapidFuzz(n_jobs=1, score_cutoff=0.80)
+matcher = RapidFuzz(n_jobs=1, score_cutoff=0.70)
 model = PolyFuzz(matcher)
 
 # Configurazione della pagina con titolo e icona
@@ -69,7 +69,7 @@ def url_match(legacy_paths, new_paths, legacy_url_parse, new_url_parse):
         pfuzz_df = model.get_matches()
         pfuzz_df["Similarity"] = pfuzz_df["Similarity"].round(3)
         pfuzz_df = pfuzz_df.sort_values('Similarity', ascending=False)
-        pfuzz_df = pfuzz_df[pfuzz_df['Similarity'] >= .800]
+        pfuzz_df = pfuzz_df[pfuzz_df['Similarity'] >= .700]
         
         join_df = pd.merge(pfuzz_df, legacy_url_parse, left_on='From', right_on='path')
         join_df_2 = pd.merge(join_df, new_url_parse, left_on='To', right_on='path')
@@ -86,7 +86,7 @@ def slug_match(legacy_slugs, new_slugs, legacy_url_parse, new_url_parse):
         pfuzz_df = model.get_matches()
         pfuzz_df["Similarity"] = pfuzz_df["Similarity"].round(3)
         pfuzz_df = pfuzz_df.sort_values('Similarity', ascending=False)
-        pfuzz_df = pfuzz_df[pfuzz_df['Similarity'] >= .800]
+        pfuzz_df = pfuzz_df[pfuzz_df['Similarity'] >= .700]
         
         join_df = pd.merge(pfuzz_df, legacy_url_parse, left_on='From', right_on='last_dir')
         join_df_2 = pd.merge(join_df, new_url_parse, left_on='To', right_on='last_dir')
