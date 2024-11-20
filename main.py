@@ -7,7 +7,7 @@ from polyfuzz import PolyFuzz
 from polyfuzz.models import RapidFuzz
 
 # Imposta il matcher e il modello
-matcher = RapidFuzz(n_jobs=1, score_cutoff=0.70)
+matcher = RapidFuzz(n_jobs=1)
 model = PolyFuzz(matcher)
 
 # Configurazione della pagina con titolo e icona
@@ -21,6 +21,15 @@ st.markdown("# Redirect URL Mapper")
 
 # Aggiungi il sottotitolo
 st.markdown("Strumento per la mappatura automatica dei reindirizzamenti, che confronta gli URL precedenti e quelli nuovi in base a vari elementi della pagina (percorsi, slug, titoli, H1 e H2). Supporta l'importazione tramite *Screaming Frog* ed *advertools spider* per il crawling.")
+
+# Slider per la soglia di similarità
+similarity_threshold = st.slider(
+    'Imposta la soglia di similarità (da 0.0 a 1.0)',
+    min_value=0.0,
+    max_value=1.0,
+    value=0.80,  # Valore predefinito
+    step=0.01
+)
 
 # Sezione per istruzioni e requisiti in blocchi espandibili uno sopra l'altro
 with st.expander("Istruzioni"):
@@ -44,7 +53,7 @@ input_files = []
 crawl_columns = ['Address', 'Title 1', 'H1-1', 'H2-1']
 
 # Funzione per analizzare i crawl
-def analyze_crawls(crawls):
+def analyze_crawls(crawls, threshold):
     with st.spinner('Elaborazione dei crawl del sito in corso...'):
         progress_bar = st.progress(0)
         for crawl_index, crawl in enumerate(crawls):
@@ -60,17 +69,15 @@ def analyze_crawls(crawls):
         new_crawl = new_crawl[crawl_columns]
         legacy_urls = legacy_crawl['Address'].tolist()
         new_urls = new_crawl['Address'].tolist()
-    url_parse(legacy_urls, legacy_crawl, new_urls, new_crawl)
+    url_parse(legacy_urls, legacy_crawl, new_urls, new_crawl, threshold)
 
 # Funzioni di match
-def url_match(legacy_paths, new_paths, legacy_url_parse, new_url_parse):
+def url_match(legacy_paths, new_paths, legacy_url_parse, new_url_parse, threshold):
     with st.spinner('Analisi dei percorsi degli URL in corso...'):
         model.match(legacy_paths, new_paths)
         pfuzz_df = model.get_matches()
         pfuzz_df["Similarity"] = pfuzz_df["Similarity"].round(3)
-        pfuzz_df = pfuzz_df.sort_values('Similarity', ascending=False)
-        pfuzz_df = pfuzz_df[pfuzz_df['Similarity'] >= .700]
-        
+        pfuzz_df = pfuzz_df[pfuzz_df['Similarity'] >= threshold]
         join_df = pd.merge(pfuzz_df, legacy_url_parse, left_on='From', right_on='path')
         join_df_2 = pd.merge(join_df, new_url_parse, left_on='To', right_on='path')
         join_df_2.rename(
@@ -80,14 +87,12 @@ def url_match(legacy_paths, new_paths, legacy_url_parse, new_url_parse):
         url_df = url_df.drop_duplicates()
     return url_df
 
-def slug_match(legacy_slugs, new_slugs, legacy_url_parse, new_url_parse):
+def slug_match(legacy_slugs, new_slugs, legacy_url_parse, new_url_parse, threshold):
     with st.spinner('Analisi degli slug degli URL in corso...'):
         model.match(legacy_slugs, new_slugs)
         pfuzz_df = model.get_matches()
         pfuzz_df["Similarity"] = pfuzz_df["Similarity"].round(3)
-        pfuzz_df = pfuzz_df.sort_values('Similarity', ascending=False)
-        pfuzz_df = pfuzz_df[pfuzz_df['Similarity'] >= .700]
-        
+        pfuzz_df = pfuzz_df[pfuzz_df['Similarity'] >= threshold]
         join_df = pd.merge(pfuzz_df, legacy_url_parse, left_on='From', right_on='last_dir')
         join_df_2 = pd.merge(join_df, new_url_parse, left_on='To', right_on='last_dir')
         join_df_2.rename(
@@ -97,14 +102,12 @@ def slug_match(legacy_slugs, new_slugs, legacy_url_parse, new_url_parse):
         slug_df = slug_df.drop_duplicates()
     return slug_df
 
-def title_match(legacy_titles, new_titles, legacy_crawl, new_crawl):
+def title_match(legacy_titles, new_titles, legacy_crawl, new_crawl, threshold):
     with st.spinner('Analisi dei titoli in corso...'):
         model.match(legacy_titles, new_titles)
         pfuzz_df = model.get_matches()
         pfuzz_df["Similarity"] = pfuzz_df["Similarity"].round(3)
-        pfuzz_df = pfuzz_df.sort_values('Similarity', ascending=False)
-        pfuzz_df = pfuzz_df[pfuzz_df['Similarity'] >= .700]
-        
+        pfuzz_df = pfuzz_df[pfuzz_df['Similarity'] >= threshold]
         join_df = pd.merge(pfuzz_df, legacy_crawl, left_on='From', right_on='Title 1')
         join_df_2 = pd.merge(join_df, new_crawl, left_on='To', right_on='Title 1').drop_duplicates()
         join_df_2.rename(columns={'Address_x': 'URL Legacy', 'Address_y': 'URL Nuovo'}, inplace=True)
@@ -112,14 +115,12 @@ def title_match(legacy_titles, new_titles, legacy_crawl, new_crawl):
         title_df = title_df.drop_duplicates()
     return title_df
 
-def h1_match(legacy_h1, new_h1, legacy_crawl, new_crawl):
+def h1_match(legacy_h1, new_h1, legacy_crawl, new_crawl, threshold):
     with st.spinner('Analisi degli H1 in corso...'):
         model.match(legacy_h1, new_h1)
         pfuzz_df = model.get_matches()
         pfuzz_df["Similarity"] = pfuzz_df["Similarity"].round(3)
-        pfuzz_df = pfuzz_df.sort_values('Similarity', ascending=False)
-        pfuzz_df = pfuzz_df[pfuzz_df['Similarity'] >= .900]
-        
+        pfuzz_df = pfuzz_df[pfuzz_df['Similarity'] >= threshold]
         join_df = pd.merge(pfuzz_df, legacy_crawl, left_on='From', right_on='H1-1')
         join_df_2 = pd.merge(join_df, new_crawl, left_on='To', right_on='H1-1')
         join_df_2.rename(columns={'Address_x': 'URL Legacy', 'Address_y': 'URL Nuovo'}, inplace=True)
@@ -127,14 +128,12 @@ def h1_match(legacy_h1, new_h1, legacy_crawl, new_crawl):
         h1_df = h1_df.drop_duplicates()
     return h1_df
 
-def h2_match(legacy_h2, new_h2, legacy_crawl, new_crawl):
+def h2_match(legacy_h2, new_h2, legacy_crawl, new_crawl, threshold):
     with st.spinner('Analisi degli H2 in corso...'):
         model.match(legacy_h2, new_h2)
         pfuzz_df = model.get_matches()
         pfuzz_df["Similarity"] = pfuzz_df["Similarity"].round(3)
-        pfuzz_df = pfuzz_df.sort_values('Similarity', ascending=False)
-        pfuzz_df = pfuzz_df[pfuzz_df['Similarity'] >= .900]
-        
+        pfuzz_df = pfuzz_df[pfuzz_df['Similarity'] >= threshold]
         join_df = pd.merge(pfuzz_df, legacy_crawl, left_on='From', right_on='H2-1')
         join_df_2 = pd.merge(join_df, new_crawl, left_on='To', right_on='H2-1').drop_duplicates()
         join_df_2.rename(columns={'Address_x': 'URL Legacy', 'Address_y': 'URL Nuovo'}, inplace=True)
@@ -143,7 +142,7 @@ def h2_match(legacy_h2, new_h2, legacy_crawl, new_crawl):
     return h2_df
 
 # Funzione di parsing degli URL
-def url_parse(legacy_urls, legacy_crawl, new_urls, new_crawl):
+def url_parse(legacy_urls, legacy_crawl, new_urls, new_crawl, threshold):
     with st.spinner('Decomposizione degli URL in corso...'):
         url_parse_cols = ['url', 'path', 'last_dir']
         legacy_url_parse = adv.url_to_df(legacy_urls)
@@ -163,11 +162,11 @@ def url_parse(legacy_urls, legacy_crawl, new_urls, new_crawl):
         new_h2 = new_crawl['H2-1']
 
     match_dfs = [
-        url_match(legacy_paths, new_paths, legacy_url_parse, new_url_parse),
-        slug_match(legacy_slug, new_slug, legacy_url_parse, new_url_parse),
-        title_match(legacy_titles, new_titles, legacy_crawl, new_crawl),
-        h1_match(legacy_h1, new_h1, legacy_crawl, new_crawl),
-        h2_match(legacy_h2, new_h2, legacy_crawl, new_crawl)
+        url_match(legacy_paths, new_paths, legacy_url_parse, new_url_parse, threshold),
+        slug_match(legacy_slug, new_slug, legacy_url_parse, new_url_parse, threshold),
+        title_match(legacy_titles, new_titles, legacy_crawl, new_crawl, threshold),
+        h1_match(legacy_h1, new_h1, legacy_crawl, new_crawl, threshold),
+        h2_match(legacy_h2, new_h2, legacy_crawl, new_crawl, threshold)
     ]
     export_dfs(match_dfs)
 
@@ -199,7 +198,7 @@ if legacy_file is not None:
     new_file = st.file_uploader('Carica il file degli ***URLs staging***', type='xlsx', key='new')
     if new_file is not None:
         crawl_files = [legacy_file, new_file]
-        analyze_crawls(crawl_files)
+        analyze_crawls(crawl_files, similarity_threshold)
 
 # Branding e footer
 st.markdown("---")
