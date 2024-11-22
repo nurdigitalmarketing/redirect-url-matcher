@@ -27,16 +27,63 @@ st.markdown("Strumento per la mappatura automatica dei reindirizzamenti, che con
 # Sezione per istruzioni e requisiti in blocchi espandibili
 with st.expander("Istruzioni"):
     st.markdown("""
-    - Esegui una scansione su Screaming Frog dei siti live e staging (utilizza le sitemap come fonte di crawling)
-    - Filtra per Content Type "HTML" ed esporta entrambi i crawling in formato .XLSX 
-    - Carica i file separati nelle apposite sezioni dello strumento
+    ### Come utilizzare lo strumento
+    1. **Preparazione dei crawl**:
+       - Esegui una scansione con Screaming Frog sia del sito attualmente live che del sito staging/nuovo
+       - Per ottenere risultati migliori, utilizza le sitemap XML come fonte di crawling
+       - Puoi utilizzare l'URL List Mode per crawlare solo specifiche sezioni del sito
+
+    2. **Esportazione dei dati**:
+       - In Screaming Frog, applica i filtri desiderati per il tipo di contenuto:
+         - HTML (per pagine web standard)
+         - PDF (per documenti)
+         - Images (per file immagine)
+         - CSS/JavaScript (per file di risorse)
+       - Esporta i risultati in formato .XLSX per entrambi i siti
+
+    3. **Utilizzo dello strumento**:
+       - Carica prima il file del sito live nella sezione "URLs attualmente live"
+       - Poi carica il file del sito staging/nuovo nella sezione "URLs staging"
+       - Utilizza i cursori nella sidebar per regolare le soglie di similarità:
+         - Valori più alti = match più precisi ma meno risultati
+         - Valori più bassi = più risultati ma possibili falsi positivi
+
+    4. **Analisi dei risultati**:
+       - Lo strumento confronterà automaticamente:
+         - URL completi
+         - Slug delle URL
+         - Titoli delle pagine
+         - Contenuto degli H1
+         - Contenuto degli H2
+       - Puoi visualizzare i risultati per ogni tipo di match
+       - Scarica il file Excel completo con tutti i match trovati
     """)
 
-with st.expander("Requisiti"):
+with st.expander("Requisiti e formato dei file"):
     st.markdown("""
-    - La colonna 1 deve essere denominata "Address" e contenere URL completi, inclusi http(s)://
-    - Le seguenti intestazioni di colonna devono essere presenti in entrambi i file, anche se le celle sono vuote:
-      - "Title 1", "H1-1", "H2-1"
+    ### Requisiti dei file Excel
+    1. **Struttura delle colonne obbligatorie**:
+       - "Address" (colonna 1): URL completi con http(s)://
+       - "Title 1": Titolo della pagina
+       - "H1-1": Primo heading H1
+       - "H2-1": Primo heading H2
+
+    2. **Note importanti**:
+       - Tutte le colonne sopra elencate devono essere presenti in entrambi i file
+       - Le colonne possono contenere celle vuote, ma le intestazioni devono esistere
+       - Gli URL devono essere completi e validi
+       - Si possono includere ulteriori colonne, ma non verranno utilizzate per il matching
+
+    3. **Suggerimenti per risultati migliori**:
+       - Assicurati che gli URL non contengano spazi o caratteri speciali
+       - Verifica che i titoli e gli heading siano puliti da caratteri HTML
+       - Per file PDF, immagini o altri tipi di contenuto, assicurati che Screaming Frog abbia accesso ai file
+       - Considera di utilizzare filtri in Screaming Frog per ridurre il rumore nei dati
+
+    4. **In caso di errori**:
+       - Usa il pulsante "Resetta cache e ricarica" se noti comportamenti anomali
+       - Verifica la presenza di tutte le colonne richieste
+       - Controlla che non ci siano celle con formattazione speciale
     """)
 
 # Configurazione soglie nella sidebar con valori di default modificabili
