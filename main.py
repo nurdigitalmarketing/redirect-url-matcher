@@ -266,7 +266,7 @@ if st.button('Resetta cache e ricarica'):
     st.session_state.new_crawl = None
     st.session_state.legacy_url_parse = None
     st.session_state.new_url_parse = None
-    st.experimental_rerun()
+    st.rerun()  # Modificato da st.experimental_rerun() a st.rerun()
 
 # File uploader e avvio analisi
 legacy_file = st.file_uploader('Carica il file degli ***URLs attualmente live***', type='xlsx', key='legacy')
