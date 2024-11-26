@@ -142,103 +142,126 @@ def filter_and_join_results(matches_df, threshold, legacy_data, new_data, match_
 def analyze_crawls(crawls):
     with st.spinner('Elaborazione dei crawl del sito in corso...'):
         progress_bar = st.progress(0)
-        input_files = []
-        
-        for crawl_index, crawl in enumerate(crawls):
-            wb = load_workbook(filename=crawl)
-            sheet_name = wb.sheetnames
-            input_files.append([crawl, sheet_name])
-            progress_bar.progress((crawl_index + 1) / len(crawls))
-            time.sleep(0.01)
-
-        # Carica i crawl solo se non sono già in cache
-        if st.session_state.legacy_crawl is None:
-            st.session_state.legacy_crawl = pd.read_excel(
-                input_files[0][0], 
-                sheet_name=input_files[0][1][0]
-            )[['Address', 'Title 1', 'H1-1', 'H2-1']]
+        try:
+            # Validazione colonne richieste
+            required_columns = ['Address', 'Title 1', 'H1-1', 'H2-1']
             
-            st.session_state.new_crawl = pd.read_excel(
-                input_files[1][0], 
-                sheet_name=input_files[1][1][0]
-            )[['Address', 'Title 1', 'H1-1', 'H2-1']]
+            input_files = []
+            for crawl_index, crawl in enumerate(crawls):
+                wb = load_workbook(filename=crawl)
+                sheet_name = wb.sheetnames
+                input_files.append([crawl, sheet_name])
+                
+                # Leggi il file Excel e verifica le colonne
+                df_test = pd.read_excel(crawl, sheet_name=sheet_name[0])
+                missing_cols = [col for col in required_columns if col not in df_test.columns]
+                if missing_cols:
+                    st.error(f"Colonne mancanti nel file {crawl.name}: {', '.join(missing_cols)}")
+                    return
+                
+                progress_bar.progress((crawl_index + 1) / len(crawls))
+                time.sleep(0.01)
 
-            # Parse URL
-            legacy_urls = st.session_state.legacy_crawl['Address'].tolist()
-            new_urls = st.session_state.new_crawl['Address'].tolist()
-            
-            st.session_state.legacy_url_parse = adv.url_to_df(legacy_urls)[['url', 'path', 'last_dir']]
-            st.session_state.new_url_parse = adv.url_to_df(new_urls)[['url', 'path', 'last_dir']]
+            # Carica i crawl solo se non sono già in cache e se la validazione è passata
+            if st.session_state.legacy_crawl is None:
+                st.session_state.legacy_crawl = pd.read_excel(
+                    input_files[0][0], 
+                    sheet_name=input_files[0][1][0]
+                )[required_columns]
+                
+                st.session_state.new_crawl = pd.read_excel(
+                    input_files[1][0], 
+                    sheet_name=input_files[1][1][0]
+                )[required_columns]
 
-            # Esegui i match iniziali e salva i risultati
-            st.session_state.matched_results = {
-                'url': perform_initial_match(
-                    'url',
-                    st.session_state.legacy_url_parse['path'],
-                    st.session_state.new_url_parse['path']
-                ),
-                'slug': perform_initial_match(
-                    'slug',
-                    st.session_state.legacy_url_parse['last_dir'],
-                    st.session_state.new_url_parse['last_dir']
-                ),
-                'title': perform_initial_match(
-                    'title',
-                    st.session_state.legacy_crawl['Title 1'],
-                    st.session_state.new_crawl['Title 1']
-                ),
-                'h1': perform_initial_match(
-                    'h1',
-                    st.session_state.legacy_crawl['H1-1'],
-                    st.session_state.new_crawl['H1-1']
-                ),
-                'h2': perform_initial_match(
-                    'h2',
-                    st.session_state.legacy_crawl['H2-1'],
-                    st.session_state.new_crawl['H2-1']
-                )
-            }
+                # Parse URL
+                legacy_urls = st.session_state.legacy_crawl['Address'].tolist()
+                new_urls = st.session_state.new_crawl['Address'].tolist()
+                
+                st.session_state.legacy_url_parse = adv.url_to_df(legacy_urls)[['url', 'path', 'last_dir']]
+                st.session_state.new_url_parse = adv.url_to_df(new_urls)[['url', 'path', 'last_dir']]
 
-    # Applica i filtri sui risultati cached
-    filtered_results = [
-        filter_and_join_results(
-            st.session_state.matched_results['url'],
-            threshold_url,
-            st.session_state.legacy_url_parse,
-            st.session_state.new_url_parse,
-            'url'
-        ),
-        filter_and_join_results(
-            st.session_state.matched_results['slug'],
-            threshold_slug,
-            st.session_state.legacy_url_parse,
-            st.session_state.new_url_parse,
-            'slug'
-        ),
-        filter_and_join_results(
-            st.session_state.matched_results['title'],
-            threshold_title,
-            st.session_state.legacy_crawl,
-            st.session_state.new_crawl,
-            'title'
-        ),
-        filter_and_join_results(
-            st.session_state.matched_results['h1'],
-            threshold_h1,
-            st.session_state.legacy_crawl,
-            st.session_state.new_crawl,
-            'h1'
-        ),
-        filter_and_join_results(
-            st.session_state.matched_results['h2'],
-            threshold_h2,
-            st.session_state.legacy_crawl,
-            st.session_state.new_crawl,
-            'h2'
-        )
-    ]
-    
-    export_dfs(filtered_results)
+                # Esegui i match iniziali e salva i risultati
+                st.session_state.matched_results = {
+                    'url': perform_initial_match(
+                        'url',
+                        st.session_state.legacy_url_parse['path'],
+                        st.session_state.new_url_parse['path']
+                    ),
+                    'slug': perform_initial_match(
+                        'slug',
+                        st.session_state.legacy_url_parse['last_dir'],
+                        st.session_state.new_url_parse['last_dir']
+                    ),
+                    'title': perform_initial_match(
+                        'title',
+                        st.session_state.legacy_crawl['Title 1'],
+                        st.session_state.new_crawl['Title 1']
+                    ),
+                    'h1': perform_initial_match(
+                        'h1',
+                        st.session_state.legacy_crawl['H1-1'],
+                        st.session_state.new_crawl['H1-1']
+                    ),
+                    'h2': perform_initial_match(
+                        'h2',
+                        st.session_state.legacy_crawl['H2-1'],
+                        st.session_state.new_crawl['H2-1']
+                    )
+                }
+
+            # Verifica che matched_results sia stato popolato correttamente
+            if st.session_state.matched_results is not None:
+                # Applica i filtri sui risultati cached
+                filtered_results = [
+                    filter_and_join_results(
+                        st.session_state.matched_results['url'],
+                        threshold_url,
+                        st.session_state.legacy_url_parse,
+                        st.session_state.new_url_parse,
+                        'url'
+                    ),
+                    filter_and_join_results(
+                        st.session_state.matched_results['slug'],
+                        threshold_slug,
+                        st.session_state.legacy_url_parse,
+                        st.session_state.new_url_parse,
+                        'slug'
+                    ),
+                    filter_and_join_results(
+                        st.session_state.matched_results['title'],
+                        threshold_title,
+                        st.session_state.legacy_crawl,
+                        st.session_state.new_crawl,
+                        'title'
+                    ),
+                    filter_and_join_results(
+                        st.session_state.matched_results['h1'],
+                        threshold_h1,
+                        st.session_state.legacy_crawl,
+                        st.session_state.new_crawl,
+                        'h1'
+                    ),
+                    filter_and_join_results(
+                        st.session_state.matched_results['h2'],
+                        threshold_h2,
+                        st.session_state.legacy_crawl,
+                        st.session_state.new_crawl,
+                        'h2'
+                    )
+                ]
+                
+                export_dfs(filtered_results)
+            else:
+                st.error("Errore nel processamento dei file. Prova a resettare la cache e ricaricare.")
+                
+        except Exception as e:
+            st.error(f"Si è verificato un errore durante l'elaborazione: {str(e)}")
+            st.session_state.matched_results = None
+            st.session_state.legacy_crawl = None
+            st.session_state.new_crawl = None
+            st.session_state.legacy_url_parse = None
+            st.session_state.new_url_parse = None
 
 # Funzione per esportare e visualizzare le tabelle
 def export_dfs(match_dfs):
@@ -313,7 +336,7 @@ if st.button('Resetta cache e ricarica'):
     st.session_state.new_crawl = None
     st.session_state.legacy_url_parse = None
     st.session_state.new_url_parse = None
-    st.rerun()  # Modificato da st.experimental_rerun() a st.rerun()
+    st.rerun()
 
 # File uploader e avvio analisi
 legacy_file = st.file_uploader('Carica il file degli ***URLs attualmente live***', type='xlsx', key='legacy')
